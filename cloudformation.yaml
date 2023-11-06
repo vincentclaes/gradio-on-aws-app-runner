@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: RAG application to test bedrock models aginst your own documents.
+
+Parameters:
+  ServiceName:
+    Type: String
+    Description: The name of the App Runner service.
+    Default: Gradio-On-AWS
+
+Resources:
+  AppRunnerService:
+    Type: 'AWS::AppRunner::Service'
+    Properties:
+      ServiceName: !Ref ServiceName
+      SourceConfiguration:
+        AuthenticationConfiguration: {} # No authentication needed for public ECR
+        ImageRepository:
+          ImageIdentifier: 'public.ecr.aws/p8v2r4g3/gradio-aws-app-runner:latest'
+          ImageRepositoryType: 'ECR_PUBLIC'
+          ImageConfiguration:
+            Port: '8080' # Replace with the port your application listens on
+            StartCommand: "python app.py"
+      InstanceConfiguration:
+        Cpu: '2048' # 1 vCPU
+        Memory: '4096' # 2 GB of memory
+
+
+Outputs:
+  ServiceUrl:
+    Description: The URL of the application.
+    Value: !GetAtt AppRunnerService.ServiceUrl
